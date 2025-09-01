@@ -1,0 +1,31 @@
+services:
+
+  backend:
+    volumes:
+      - ../apps/jonjarboe:${JONJARBOE_MNT:-/home/frappe/frappe-bench/apps/jonjarboe}
+      #- ../apps/kestra:${KESTRA_MNT:-/home/frappe/frappe-bench/apps/kestra}
+
+  configurator:
+    volumes:
+      - ../apps/jonjarboe:${JONJARBOE_MNT:-/home/frappe/frappe-bench/apps/jonjarboe}
+      #- ../apps/kestra:${KESTRA_MNT:-/home/frappe/frappe-bench/apps/kestra}
+
+  create-site:
+    volumes:
+      - ../apps/jonjarboe:${JONJARBOE_MNT:-/home/frappe/frappe-bench/apps/jonjarboe}
+      #- ../apps/kestra:${KESTRA_MNT:-/home/frappe/frappe-bench/apps/kestra}
+
+  frontend:
+    volumes:
+      - ../apps/jonjarboe:${JONJARBOE_MNT:-/home/frappe/frappe-bench/apps/jonjarboe}
+      #- ../apps/kestra:${KESTRA_MNT:-/home/frappe/frappe-bench/apps/kestra}
+
+  queue-long:
+    volumes:
+      - ../apps/jonjarboe:${JONJARBOE_MNT:-/home/frappe/frappe-bench/apps/jonjarboe}
+      #- ../apps/kestra:${KESTRA_MNT:-/home/frappe/frappe-bench/apps/kestra}
+
+  queue-short:
+    volumes:
+      - ../apps/jonjarboe:${JONJARBOE_MNT:-/home/frappe/frappe-bench/apps/jonjarboe}
+      #- ../apps/kestra:${KESTRA_MNT:-/home/frappe/frappe-bench/apps/kestra}
