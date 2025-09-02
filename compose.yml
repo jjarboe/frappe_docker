@@ -1,5 +1,41 @@
 services:
 
+  builder:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM alpine:latest
+        RUN apk update && apk add --no-cache \
+            curl \
+            bash \
+            git \
+            python3 \
+            docker-cli
+        ARG COMPOSE_VERSION=v2.27.0
+        ARG TARGETARCH
+        RUN \
+            PLUGIN_DIR="/usr/local/lib/docker/cli-plugins" && \
+            mkdir -p $$PLUGIN_DIR && \
+            if [ -z "$$TARGETARCH" ] ; then \
+              arch_raw=$$(uname -m); \
+            else \
+              arch_raw=$$TARGETARCH; \
+            fi && \
+            case $${arch_raw} in \
+                "amd64" | "x86_64") ARCH="x86_64" ;; \
+                "arm64" | "aarch64") ARCH="aarch64" ;; \
+            esac && \
+            curl -SL https://github.com/docker/compose/releases/download/$${COMPOSE_VERSION}/docker-compose-linux-$${ARCH} -o $$PLUGIN_DIR/docker-compose && \
+            chmod +x $$PLUGIN_DIR/docker-compose
+        RUN docker compose version
+    volumes:
+      - .:/app:ro
+      - ../apps.json:/app/apps.json:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /media/git:/media/git
+    working_dir: /app
+    command: /bin/bash ./builder.bash
+
   build_erpnext_image:
     build:
       context: .
@@ -7,10 +43,10 @@ services:
       args:
         FRAPPE_PATH: https://github.com/frappe/frappe
         FRAPPE_BRANCH: version-15
-        APPS_JSON_BASE64: ${APPS_JSON_BASE64}
+        APPS_JSON_BASE64: ${APPS_JSON_BASE64:-}
       extra_hosts:
         - "host.docker.internal:host-gateway"
-        - "redis_cache:${ERPNEXT_BUILD_REDIS_CACHE_IP}"
+        - "redis_cache:${ERPNEXT_BUILD_REDIS_CACHE_IP:-host-gateway}"
     image: jrjarboe/erpnext:latest
     command: ["/bin/true"]
 
@@ -91,7 +127,8 @@ services:
         done;
         echo "sites/common_site_config.json found";
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --install-app jonjarboe --set-default frontend;
-        bench --site frontend set-config host_name "${ERPNEXT_URL}"
+        bench --site frontend set-config host_name "${ERPNEXT_URL:-http://apps.lan:8080}"
+        bench build
 
   db:
     image: mariadb:10.6
@@ -139,7 +176,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     ports:
-      - "${ERPNEXT_PORT}:8080"
+      - "${ERPNEXT_PORT:-8080}:8080"
 
   queue-long:
     image: jrjarboe/erpnext:latest

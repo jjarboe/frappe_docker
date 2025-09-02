@@ -1,0 +1,10 @@
+[
+  {
+    "url": "https://github.com/frappe/erpnext",
+    "branch": "version-15"
+  },
+  {
+    "url": "${ERPNEXT_BUILD_GIT_URL}/erpnext-jonjarboe.git",
+    "branch": "develop"
+  }
+]
