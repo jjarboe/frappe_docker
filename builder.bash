@@ -65,7 +65,7 @@ start_web_server() {
   docker run --rm -d \
 	--name erpnext-build-git-server \
 	-v /media/git:/srv/git \
-	"git-server" || exit 1
+	"git-server" >& /dev/null
   add_cleanup "docker kill erpnext-build-git-server"
 
   ip=$(docker inspect erpnext-build-git-server --format '{{.NetworkSettings.IPAddress}}')
@@ -78,7 +78,7 @@ start_web_server
 start_redis_cache() {
   docker run --rm -d \
 	--name erpnext-build-redis-cache \
-	redis:6.2-alpine || exit 1
+	redis:6.2-alpine >& /dev/null
   add_cleanup "docker kill erpnext-build-redis-cache"
   redis_ip=$(docker inspect erpnext-build-redis-cache --format '{{.NetworkSettings.IPAddress}}')
   export ERPNEXT_BUILD_REDIS_CACHE_IP=$redis_ip
@@ -122,7 +122,7 @@ diff <(rendered_config) <(echo -n $APPS_JSON_BASE64 | base64 -d) || exit 1
 #cd ${SCRIPT_DIR}/frappe_docker
 #
 #docker compose build "${build_args[@]}" || exit $?
-docker compose build
+docker compose build "$@"
 #
 #if [ $execute_up -eq 1 ]; then
 #	docker compose down || exit $?

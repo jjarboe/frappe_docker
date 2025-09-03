@@ -27,14 +27,12 @@ services:
             esac && \
             curl -SL https://github.com/docker/compose/releases/download/$${COMPOSE_VERSION}/docker-compose-linux-$${ARCH} -o $$PLUGIN_DIR/docker-compose && \
             chmod +x $$PLUGIN_DIR/docker-compose
-        RUN docker compose version
     volumes:
       - .:/app:ro
-      - ../apps.json:/app/apps.json:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - /media/git:/media/git
     working_dir: /app
-    command: /bin/bash ./builder.bash
+    entrypoint: /bin/bash ./builder.bash
 
   build_erpnext_image:
     build:
