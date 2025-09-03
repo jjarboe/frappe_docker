@@ -1,5 +1,5 @@
 ARGS ?=
-UP_ARGS ?=
+COMPOSE_ARGS ?=
 
 .PHONY: build up down
 
@@ -7,7 +7,7 @@ UP_ARGS ?=
 # It runs our builder container, which then orchestrates the real build.
 build:
 	@echo "--- Running build orchestrator with args: $(ARGS) ---"
-	@docker compose run --build --rm builder $(ARGS)
+	@docker compose $(COMPOSE_ARGS) run --build --rm builder $(ARGS)
 	@echo "--- Build complete ---"
 
 start: build
@@ -15,12 +15,12 @@ start: build
 	@make up
 
 debug: build
-	@make up UP_ARGS="-f compose.yml -f compose.jon-debug.yml"
+	@make up COMPOSE_ARGS="-f compose.yml -f compose.jon-debug.yml"
 
 # Starts the application in detached mode using the images created by 'make build'
 up:
-	docker compose up --remove-orphans -d $(UP_ARGS)
+	docker compose $(COMPOSE_ARGS) up --remove-orphans -d
 
 # Stops and removes the application containers
 down:
-	docker compose down --remove-orphans
+	docker compose $(COMPOSE_ARGS) down --remove-orphans
